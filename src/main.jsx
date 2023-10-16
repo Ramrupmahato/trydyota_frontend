@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import "rc-tree/assets/index.css";
 // import "@pathofdev/react-tag-input/build/index.css";
-import "react-loading-skeleton/dist/skeleton.css";
+// import "react-loading-skeleton/dist/skeleton.css";
 import { Windmill } from "@windmill/react-ui";
 import "@/assets/css/custom.css";
 import "@/assets/css/tailwind.css";
