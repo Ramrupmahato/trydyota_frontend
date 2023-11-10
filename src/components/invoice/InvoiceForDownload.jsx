@@ -9,7 +9,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { useTranslation } from "react-i18next";
-import logoDark from "@/assets/img/logo/logo-color.png";
+import logoDark from "@/assets/img/logo/Admin logo light.svg";
 import { showDateFormat } from "@/utils/dateFormate";
 
 Font.register({
@@ -341,7 +341,7 @@ const InvoiceForDownload = ({ data, currency, globalSetting }) => {
               >
                 <Image
                   src={logoDark}
-                  alt="kachabazar"
+                  alt="TriDyota"
                   style={{
                     width: 90,
                     alignItems: "right",

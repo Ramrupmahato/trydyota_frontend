@@ -1,8 +1,13 @@
 import {
+  Avatar,
+  Badge,
   TableBody,
   TableCell,
   TableRow,
 } from "@windmill/react-ui";
+import { t } from "i18next";
+import { FiZoomIn } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 //internal import
 import MainDrawer from "@/components/drawer/MainDrawer";
@@ -10,6 +15,8 @@ import ProductDrawer from "@/components/drawer/ProductDrawer";
 import CheckBox from "@/components/form/CheckBox";
 import DeleteModal from "@/components/modal/DeleteModal";
 import EditDeleteButton from "@/components/table/EditDeleteButton";
+import ShowHideButton from "@/components/table/ShowHideButton";
+import Tooltip from "@/components/tooltip/Tooltip";
 import useToggleDrawer from "@/hooks/useToggleDrawer";
 import { showingTranslateValue } from "@/utils/translate";
 
@@ -50,13 +57,12 @@ const ProductTable = ({ products, isCheck, setIsCheck, currency, lang }) => {
                 isChecked={isCheck?.includes(product._id)}
               />
             </TableCell>
-
             <TableCell>
               <div className="flex items-center">
-                {/* {product?.image[0] ? (
+                {product?.image && product?.image[0]?.medialink ? (
                   <Avatar
                     className="hidden p-1 mr-2 md:block bg-gray-50 shadow-none"
-                    src={product?.image[0]}
+                    src={product?.image[0].medialink}
                     alt="product"
                   />
                 ) : (
@@ -64,22 +70,65 @@ const ProductTable = ({ products, isCheck, setIsCheck, currency, lang }) => {
                     src={`https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png`}
                     alt="product"
                   />
-                )} */}
+                )}
                 <div>
-                  <h2 className="text-sm font-medium">
-                    {showingTranslateValue(product?.title, lang)?.substring(
-                      0,
-                      28
-                    )}
-                  </h2>
+                  <h2 className="text-sm font-medium">{product?.title}</h2>
                 </div>
               </div>
             </TableCell>
-
+            <TableCell>
+              <span className="text-sm">
+                {product?.category?.name}
+                {/* {showingTranslateValue(product?.category?.name, lang)} */}
+              </span>
+            </TableCell>
+            <TableCell>
+              <span className="text-sm font-semibold">
+                {currency}
+                {product?.salePrice}
+                {product?.isCombination
+                  ? product?.variants[0]?.price
+                  : product?.prices?.price}
+              </span>
+            </TableCell>
+            <TableCell>
+              <span className="text-sm font-semibold">
+                {currency}
+                {product?.salePrice}
+                {product?.isCombination
+                  ? product?.variants[0]?.salePrice
+                  : product?.prices?.salePrice}
+              </span>
+            </TableCell>
             <TableCell>
               <span className="text-sm">{product.stock}</span>
             </TableCell>
-
+            <TableCell>
+              {product.stock > 0 ? (
+                <Badge type="success">{t("Selling")}</Badge>
+              ) : (
+                <Badge type="danger">{t("SoldOut")}</Badge>
+              )}
+            </TableCell>
+            <TableCell>{product?.minimumOrderOfQuantity}</TableCell>{" "}
+            <TableCell>{product?.warrantyPeriods?.duration}</TableCell>
+            {/* <TableCell>
+              <Link
+                to={`/product/${product._id}`}
+                className="flex justify-center text-gray-400 hover:text-green-600"
+              >
+                <Tooltip
+                  id="view"
+                  Icon={FiZoomIn}
+                  title={t("DetailsTbl")}
+                  bgColor="#10B981"
+                />
+              </Link>
+            </TableCell> */}
+            <TableCell className="text-center">
+              <ShowHideButton id={product._id} status={product.status} />
+              {/* {product.status} */}
+            </TableCell>
             <TableCell>
               <EditDeleteButton
                 id={product._id}

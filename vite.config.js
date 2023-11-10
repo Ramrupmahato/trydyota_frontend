@@ -59,10 +59,10 @@ export default defineConfig({
           scope: ".",
           start_url: ".",
           id: ".",
-          short_name: "Dashtar - E-Commerce Website",
-          name: "Dashtar : React eCommerce Admin Dashboard",
+          short_name: "TriDyota | Admin Dashboard- E-Commerce Website",
+          name: "TriDyota | Admin Dashboard:TriDyota | Admin Dashboard",
           description:
-            "Dashtar : React Grocery & Organic Food Store e-commerce Admin Dashboard",
+            "TriDyota | Admin Dashboard: React Grocery & Organic Food Store e-commerce Admin Dashboard",
           icons: [
             {
               src: "favicon.ico",

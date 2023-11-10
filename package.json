@@ -1,7 +1,7 @@
 {
-  "name": "kachabazar-admin",
+  "name": "TriDyota-admin",
   "version": "0.1.0",
-  "description": "this is Kachabazar-admin built with react.js and tailwindcss",
+  "description": "this is TriDyota-admin built with react.js and tailwindcss",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -79,7 +79,7 @@
   },
   "scripts": {
     "dev": "npm run tailwind && vite --force --port 4100",
-    "build": "npm run tailwind && vite build --outDir dist",
+    "build": "npm run tailwind && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "tailwind:dev": "tailwindcss build src/assets/css/tailwind.css -o src/assets/css/tailwind.output.css --config tailwind.config.cjs",

@@ -13,6 +13,9 @@ const InputValue = ({
   placeholder,
   currency,
   product,
+  style,
+  handleInputField,
+  id,
 }) => {
   const value = {
     valueAsNumber: true,
@@ -45,8 +48,10 @@ const InputValue = ({
           type={type}
           placeholder={placeholder}
           disabled={disabled}
+          style={style}
           name={name}
-          step={0.01}
+          step={0.00}
+          onBlur={(e) => handleInputField(e.target.value,id)}
           className={`bg-gray-50 mr-2 rounded w-full h-12 p-2 text-sm border border-gray-300 focus:bg-white focus:border-gray-300 focus:outline-none ${
             product && "rounded-l-none"
           }`}

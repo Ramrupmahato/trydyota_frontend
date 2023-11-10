@@ -66,7 +66,7 @@ const CategoryDrawer = ({ id, data, lang }) => {
     let myCategories = [];
     for (let category of categories) {
       myCategories.push({
-        title: showingTranslateValue(category.name, lang),
+        title: category.name,
         key: category._id,
         children:
           category.children.length > 0 && renderCategories(category.children),
@@ -102,7 +102,7 @@ const CategoryDrawer = ({ id, data, lang }) => {
         const obj = data[0];
         const result = findObject(obj, key);
 
-        setSelectCategoryName(showingTranslateValue(result?.name, lang));
+        setSelectCategoryName(result?.name);
       }
     } else {
       if (key === undefined) return;
@@ -111,7 +111,7 @@ const CategoryDrawer = ({ id, data, lang }) => {
       const obj = data[0];
       const result = findObject(obj, key);
 
-      setSelectCategoryName(showingTranslateValue(result?.name, lang));
+      setSelectCategoryName(result?.name);
     }
   };
 

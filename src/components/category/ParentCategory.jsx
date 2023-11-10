@@ -40,7 +40,8 @@ const ParentCategory = ({
     let myCategories = [];
     for (let category of categories) {
       myCategories.push({
-        title: showingTranslateValue(category.name, lang),
+        title: category.name ,
+        // showingTranslateValue(category.name, lang),
         key: category._id,
         children:
           category?.children?.length > 0 && renderCategories(category.children),
@@ -83,13 +84,15 @@ const ParentCategory = ({
         ...pre,
         {
           _id: result?._id,
-          name: showingTranslateValue(result?.name, lang),
+          name: result?.name,
+          // showingTranslateValue(result?.name, lang),
         },
       ]);
       setDefaultCategory(() => [
         {
           _id: result?._id,
-          name: showingTranslateValue(result?.name, lang),
+          name:result?.name,
+          //  showingTranslateValue(result?.name, lang),
         },
       ]);
     }

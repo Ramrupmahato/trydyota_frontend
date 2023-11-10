@@ -19,7 +19,7 @@ import Container from "@/components/image-uploader/Container";
 //   api_secret: import.meta.env.VITE_APP_CLOUDINARY_API_SECRET,
 // });
 
-const Uploader = ({ setImageUrl, imageUrl, product, folder }) => {
+const Uploader = ({ setImageUrl, imageUrl, product, folder, pdf ,pdfName}) => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setError] = useState("");
@@ -30,7 +30,10 @@ const Uploader = ({ setImageUrl, imageUrl, product, folder }) => {
 
   const { getRootProps, getInputProps, fileRejections } = useDropzone({
     accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".webp"],
+      "image/*":
+        pdf === true
+          ? [".pdf", ".docx", ".xlsx"]
+          : [".jpeg", ".jpg", ".png", ".webp", ".pdf"],
     },
     multiple: product ? true : false,
     maxSize: 500000,
@@ -194,6 +197,8 @@ const Uploader = ({ setImageUrl, imageUrl, product, folder }) => {
         {product ? (
           <DndProvider backend={HTML5Backend}>
             <Container
+            pdfName={pdfName}
+              pdf={pdf}
               setImageUrl={setImageUrl}
               imageUrl={imageUrl}
               handleRemoveImage={handleRemoveImage}

@@ -1,8 +1,15 @@
 import update from "immutability-helper";
 import { useCallback } from "react";
 import Card from "./Card";
+import {AiFillEye} from 'react-icons/ai'
 
-const Container = ({ setImageUrl, imageUrl, handleRemoveImage }) => {
+const Container = ({
+  setImageUrl,
+  imageUrl,
+  handleRemoveImage,
+  pdf,
+  pdfName,
+}) => {
   const moveCard = useCallback(
     (dragIndex, hoverIndex) => {
       setImageUrl((prevCards) =>
@@ -33,7 +40,25 @@ const Container = ({ setImageUrl, imageUrl, handleRemoveImage }) => {
     },
     [moveCard, handleRemoveImage]
   );
-  return <>{imageUrl.map((card, i) => renderCard(card, i))}</>;
+  return (
+    <>
+      {pdf === true ? (
+        <>
+          {pdfName && (
+            <a
+              href={imageUrl && imageUrl[0]} // Provide the URL or file path to your PDF here
+              target="_blank"
+              className="text-sm flex justify-center items-center gap-1 cursor-pointer"
+            >
+              <AiFillEye /> {pdfName}
+            </a>
+          )}
+        </>
+      ) : (
+        <>{imageUrl?.map((card, i) => renderCard(card, i))}</>
+      )}
+    </>
+  );
 };
 
 export default Container;

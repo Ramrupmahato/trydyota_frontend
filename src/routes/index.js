@@ -1,3 +1,4 @@
+import HomePage from "@/pages/HomePage";
 import { lazy } from "react";
 
 // use lazy for better code splitting
@@ -10,7 +11,9 @@ const Category = lazy(() => import("@/pages/Category"));
 const ChildCategory = lazy(() => import("@/pages/ChildCategory"));
 const Staff = lazy(() => import("@/pages/Staff"));
 const Tax = lazy(() => import("@/pages/Tax"));
-
+const Shipping = lazy(() => import("@/pages/Shipping"));
+const Catalog = lazy(() => import("@/pages/Catalog"));
+const Enquiry = lazy(() => import("@/pages/Enquiry"));
 
 const Customers = lazy(() => import("@/pages/Customers"));
 const CustomerOrder = lazy(() => import("@/pages/CustomerOrder"));
@@ -59,6 +62,10 @@ const routes = [
   {
     path: "/categories",
     component: Category,
+  },
+  {
+    path: "/home",
+    component: HomePage,
   },
   {
     path: "/languages",
@@ -113,6 +120,18 @@ const routes = [
   {
     path: "/tax",
     component: Tax,
+  },
+  {
+    path: "/shipping",
+    component: Shipping,
+  },
+  {
+    path: "/catalog",
+    component: Catalog,
+  },
+  {
+    path: "/enquiry",
+    component: Enquiry,
   },
 ];
 

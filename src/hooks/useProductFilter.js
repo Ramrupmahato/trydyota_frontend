@@ -43,7 +43,7 @@ const useProductFilter = (data) => {
   //service data filtering
   const serviceData = data;
 
-  //  console.log('selectedFile',selectedFile)
+  console.log("selectedFile=>>", selectedFile);
 
   const handleOnDrop = (data) => {
     // console.log('data', data);
@@ -75,7 +75,7 @@ const useProductFilter = (data) => {
       setFileName(file?.name);
       setIsDisable(true);
 
-      fileReader.readAsText(file, "UTF-8");
+      fileReader.readAsText(file, "UTF-8BOM");
       fileReader.onload = (e) => {
         const text = JSON.parse(e.target.result);
 
@@ -108,25 +108,82 @@ const useProductFilter = (data) => {
       fileReader.onload = async (event) => {
         const text = event.target.result;
         const json = await csvToJson().fromString(text);
-        // console.log('json',json)
+        console.log("json", json);
         const productData = json.map((value) => {
+          let images = [];
+          let imageSplit = value.image?.split(",");
+          for (let i = 0; i < imageSplit.length; i++) {
+            let newImage = {
+              medialink: imageSplit[i],
+              defaultOrNot: i == 0 && true,
+            };
+            images.push(newImage);
+          }
+
           return {
-            categories: JSON.parse(value.categories),
-            image: JSON.parse(value.image),
-            barcode: value.barcode,
-            tag: JSON.parse(value.tag),
-            variants: JSON.parse(value.variants),
-            status: value.status,
-            prices: JSON.parse(value.prices),
-            isCombination: JSON.parse(value.isCombination),
-            title: JSON.parse(value.title),
-            productId: value.productId,
+            barcode: "",
+            title: value.title,
+            description: value.description,
             slug: value.slug,
-            sku: value.sku,
-            category: JSON.parse(value.category),
-            stock: JSON.parse(value.stock),
-            description: JSON.parse(value.description),
+            categories: value.categories?.split(","),
+            category: value.category,
+            image: images,
+            stock: value.stock,
+            tax: [value.tax],
+            warrantyPeriods: { duration: value.warranty, unit: "year" },
+            quantity: parseInt(value.MOQ,10),
+            sales: 0,
+            tag: value.tag?.split(","),
+            prices: {
+              price: value.prices,
+              salePrice: value.sale_price,
+              discount: value.prices - value.sale_price,
+            },
+            variants: [],
+            isCombination: false,
+            status: value.status,
+            userManual: [
+              {
+                medialink: "",
+              },
+            ],
+            technicalSpecification: [
+              {
+                medialink: "",
+              },
+            ],
+            testCertification: [
+              {
+                medialink: "",
+              },
+            ],
           };
+
+          // {
+          //   categories: value.categories,
+          //   image: value.image,
+          //   barcode: value.barcode,
+          //   tag: value.tag,
+          //   // variants: value.variants,
+          //   status: value.status,
+          //   // prices: value.prices,
+          //   tax: [value.tax],
+          //   prices: {
+          //     originalPrice: value.prices,
+          //     price: value.sale_price,
+          //     discount: value.prices - value.sale_price,
+          //   },
+          //   tag: value.tag?.split(","),
+          //   isCombination: value.isCombination,
+          //   title: value.title,
+          //   // productId: value.productId,
+          //   slug: value.slug,
+          //   sku: value.sku,
+          //   category: value.category,
+          //   stock: value.stock,
+          //   description: value.description,
+          //   status: value.status,
+          // };
         });
 
         setSelectedFile(productData);
@@ -183,7 +240,10 @@ const useProductFilter = (data) => {
   };
 
   const handleUploadMultiple = (e) => {
-    if (selectedFile.length > 1) {
+    console.log("selectedFile", selectedFile);
+    if (selectedFile.length > 0) {
+      console.log("validationdatayty");
+
       setLoading(true);
       let productDataValidation = selectedFile.map((value) =>
         ajv.validate(schema, value)
@@ -191,23 +251,28 @@ const useProductFilter = (data) => {
 
       const isBelowThreshold = (currentValue) => currentValue === true;
       const validationData = productDataValidation.every(isBelowThreshold);
-      // console.log('validationdata',validationData)
+      console.log("validationdata", validationData);
 
-      if (validationData) {
-        ProductServices.addAllProducts(selectedFile)
-          .then((res) => {
+      // if (validationData) {
+      console.log(selectedFile);
+      ProductServices.addAllProducts(selectedFile)
+        .then((res) => {
+          if (res?.success === true) {
             setIsUpdate(true);
             setLoading(false);
             notifySuccess(res.message);
-          })
-          .catch((err) => {
-            setLoading(false);
-            notifyError(err.message);
-          });
-      } else {
-        setLoading(false);
-        notifyError("Please enter valid data!");
-      }
+          } else {
+            notifyError(res.message);
+          }
+        })
+        .catch((err) => {
+          setLoading(false);
+          notifyError(err.message);
+        });
+      // } else {
+      //   setLoading(false);
+      //   notifyError("Please enter valid data!");
+      // }
     } else {
       setLoading(false);
       notifyError("Please select a valid json, csv & xls file first!");

@@ -62,7 +62,7 @@ const ChildCategory = () => {
 
     const findChildArray = (obj, target) => {
       // console.log('obj', obj);
-      return obj._id === target
+      return obj?._id === target
         ? obj
         : obj?.children?.reduce(
             (acc, obj) => acc ?? findChildArray(obj, target),

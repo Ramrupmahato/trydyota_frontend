@@ -141,9 +141,9 @@ const Setting = () => {
                     <Error errorName={errors.company_name} pos />
                   </div>
                 </div>
-                <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                {/* <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                   <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:col-span-2">
-                    {/* {t("FooterAddress")} */}
+                  
                     {t("VatNumber")}
                   </label>
                   <div className="sm:col-span-3">
@@ -157,7 +157,7 @@ const Setting = () => {
                     />
                     <Error errorName={errors.vat_number} pos />
                   </div>
-                </div>
+                </div> */}
                 <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                   <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:col-span-2">
                     {t("AddressLine")}

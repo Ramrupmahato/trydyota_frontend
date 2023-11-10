@@ -26,11 +26,12 @@ instance.interceptors.request.use(function (config) {
 
   // console.log('Admin Http Services Cookie Read : ' + company);
   // let companyName = JSON.stringify(company);
+  // console.log("adminInfo", adminInfo);
 
   return {
     ...config,
     headers: {
-      authorization: adminInfo ? `Bearer ${adminInfo.token}` : null,
+      authtoken: adminInfo ? adminInfo.token : null,
       company: company ? company : null,
     },
   };

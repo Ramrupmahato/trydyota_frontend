@@ -21,7 +21,7 @@ const ProductServices = {
     return requests.post("/products/all", body);
   },
   updateProduct: async (id, body) => {
-    return requests.patch(`/products/${id}`, body);
+    return requests.put(`/products/${id}`, body);
   },
   updateManyProducts: async (body) => {
     return requests.patch("products/update/many", body);

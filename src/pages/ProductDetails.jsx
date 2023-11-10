@@ -36,7 +36,7 @@ const ProductDetails = () => {
   const { data, loading } = useAsync(() => ProductServices.getProductById(id));
   const { data: globalSetting } = useAsync(SettingServices.getGlobalSetting);
 
-  const currency = globalSetting?.default_currency || "$";
+  const currency = globalSetting?.default_currency || "₹";
 
   const { handleChangePage, totalResults, resultsPerPage, dataTable } =
     useFilter(data?.variants);

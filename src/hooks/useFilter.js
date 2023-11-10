@@ -68,6 +68,7 @@ const customerSchema = {
 };
 
 const useFilter = (data) => {
+  console.log('data=>===',data);
   const ajv = new Ajv({ allErrors: true });
 
   const [filter, setFilter] = useState("");

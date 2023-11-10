@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
-import React, { useState } from "react";
-import { notifyError } from "@/utils/toast";
+import React, { useContext, useEffect, useState } from "react";
+import { notifyError, notifySuccess } from "@/utils/toast";
+import { SidebarContext } from "@/context/SidebarContext";
+import TaxService from "@/services/TaxService";
 
 const useTaxSubmit = () => {
   const {
@@ -10,13 +12,35 @@ const useTaxSubmit = () => {
     clearErrors,
     formState: { errors },
   } = useForm();
+  const {
+    toggleDrawer,
+    isDrawerOpen,
+    currentPage,
+    limitData,
+    toggleModal,
+    toggleBulkDrawer,
+    taxEdit,
+    setTaxEdit,
+  } = useContext(SidebarContext);
+  // console.log("taxEdit-->", taxEdit);
 
   const [taxList, setTaxList] = useState([]);
   const buttonType = ["PERCENTAGE (%)", "FLAT IN ₹"];
   const [taxName, setTaxName] = useState("");
   const [taxAmount, setTaxAmount] = useState("");
   const [taxType, setTaxType] = useState("PERCENTAGE (%)");
-  console.log("taxList", taxList);
+  const [taxUpdateId, setTaxUpdateId] = useState("");
+  const [taxPage, setTaxPage] = useState("");
+
+  // console.log("taxdata##=", {
+  //   taxName: taxName,
+  //   taxAmount: taxAmount,
+  //   taxType: taxType,
+  // });
+  // console.log("taxList=", taxList);
+  // console.log(
+  //   "this is scrolling test  ------################## ############### ####### ############## ######## ###### ############"
+  // );
 
   //   -------------type select-----------
   const handleSelectType = (val) => {
@@ -29,13 +53,28 @@ const useTaxSubmit = () => {
     setTaxName(value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
     console.log("value", value);
   };
+  //----------------isNumber----------------
+
+  const isNumber = (input) => {
+    const numberPattern = /^\d+$/;
+    return numberPattern.test(input);
+  };
   //   -------------Tax Amount-----------------
   const handleTaxAmount = (value) => {
-    setValue("taxAmount", value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
-    setTaxAmount(value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
+    if (isNumber(value)) {
+      setValue("taxAmount", value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
+      setTaxAmount(value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
+    } else {
+      notifyError("Please enter valid amount");
+    }
   };
   //   --------------------- submit form------------------------
   const onSubmit = () => {
+    console.log("taxdata##=", {
+      taxName: taxName,
+      taxAmount: taxAmount,
+      taxType: taxType,
+    });
     let error = 0;
     if (taxName.trim().length == 0) {
       error = error + 1;
@@ -50,15 +89,38 @@ const useTaxSubmit = () => {
     }
   };
   const validation = () => {
-    let type = taxAmount + `${taxType === "PERCENTAGE (%)" ? "%" : "₹"}`;
+    let type = taxType === "PERCENTAGE (%)" ? "%" : "₹";
+    let amountType = taxType === "PERCENTAGE (%)" ? "percentage" : "flatin";
     let newTax = {
-      id: taxList.length > 0 ? taxList[taxList.length - 1].id : 0,
-      name: taxName,
-      amount: type,
-      type: taxType,
+      taxName: taxName,
+      type: amountType,
+      currencySymbol: type,
+      ammount: parseInt(taxAmount, 10),
+      id: taxUpdateId ? taxUpdateId : "",
     };
-    console.log("newTax", newTax);
-    setTaxList([...taxList, newTax]);
+
+    TaxService.postTax(newTax).then((res) => {
+      console.log("taxResponse", res);
+      if (res?.success === true) {
+        notifySuccess(res.message);
+        if (taxUpdateId) {
+          toggleDrawer();
+        }
+        setTaxUpdateId("");
+        getTaxDetails();
+        setTaxName("");
+        setTaxAmount("");
+        setValue("taxAmount", "");
+        setValue("taxName", "");
+        setTaxType("PERCENTAGE (%)");
+        clearErrors("taxAmount");
+        clearErrors("taxName");
+      } else {
+        notifyError(res.message);
+      }
+    });
+  };
+  const handleCancel = () => {
     setTaxName("");
     setTaxAmount("");
     setValue("taxAmount", "");
@@ -67,10 +129,51 @@ const useTaxSubmit = () => {
     clearErrors("taxAmount");
     clearErrors("taxName");
   };
-  const handleCancel = () => {
+  // ----------------select for update tax------------
+  const handleUpdate = (id) => {
+    toggleDrawer();
+
+    let AllData = [...taxList];
+    // console.log("AllData===>", AllData);
+
+    AllData.forEach((item, i) => {
+      if (item._id === id) {
+        console.log("item===>", item);
+        console.log("idddddd", id);
+        setTaxEdit(item);
+        setTaxUpdateId(id);
+        setValue("taxName", item.taxName);
+        setTaxName(item.taxName);
+
+        setValue("taxAmount", item.ammount);
+        setTaxAmount(item.ammount);
+        setTaxType(item.type === "percentage" ? "PERCENTAGE (%)" : "FLAT IN ₹");
+      }
+    });
+  };
+  // ----------------cancel update------------------
+  const cancelUpdate = () => {
     setTaxName("");
     setTaxAmount("");
+    setValue("taxAmount", "");
+    setValue("taxName", "");
     setTaxType("PERCENTAGE (%)");
+    clearErrors("taxAmount");
+    clearErrors("taxName");
+    toggleDrawer();
+    handleCancel();
+  };
+  // -------------------get tax details------------------------
+  const getTaxDetails = () => {
+    TaxService.getTax({ page: currentPage, limit: limitData }).then((res) => {
+      if (res?.success === true) {
+        notifySuccess(res.message);
+        setTaxList(res.taxDetails);
+        setTaxPage(res.Pagination);
+      } else {
+        notifyError(res.message);
+      }
+    });
   };
 
   return {
@@ -88,9 +191,14 @@ const useTaxSubmit = () => {
     handleTaxName,
     handleTaxAmount,
     taxType,
+    taxPage,
     handleSelectType,
     onSubmit,
     handleCancel,
+    handleUpdate,
+    getTaxDetails,
+    cancelUpdate,
+    validation,
   };
 };
 

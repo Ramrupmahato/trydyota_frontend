@@ -111,7 +111,7 @@ const Header = () => {
           <span></span>
 
           <ul className="flex justify-end items-center flex-shrink-0 space-x-6">
-            <li className="changeLanguage">
+            {/* <li className="changeLanguage">
               <div className="dropdown">
                 <button className="dropbtn focus:outline-none">
                   {currentLanguageCode === "de" ? (
@@ -137,7 +137,7 @@ const Header = () => {
                   </div>
                 </div>
               </div>
-            </li>
+            </li> */}
 
             {/* <!-- Theme toggler --> */}
 

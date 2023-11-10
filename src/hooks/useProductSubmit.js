@@ -15,6 +15,7 @@ import {
   showingTranslateValue,
   handlerTextTranslateHandler,
 } from "@/utils/translate";
+import TaxService from "@/services/TaxService";
 
 const useProductSubmit = (id) => {
   const location = useLocation();
@@ -58,20 +59,28 @@ const useProductSubmit = (id) => {
   const [openModal, setOpenModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [slug, setSlug] = useState("");
-  const [userManual,setUserManual]=useState([]);
-  const [technical,setTechnical]=useState([]);
-  const [test,setTest]=useState([]);
-  const [tex,setTex]=useState([]);
-  const [minimumOrder,setMinimumOrder]=useState('');
-  const [warrantyPeriod,setWarrantyPeriod]=useState('');
+  const [userManual, setUserManual] = useState([]);
+  const [technical, setTechnical] = useState([]);
+  const [test, setTest] = useState([]);
+  const [tax, setTax] = useState([]);
+  const [minimumOrder, setMinimumOrder] = useState("");
+  const [warrantyPeriod, setWarrantyPeriod] = useState("");
+  const [taxOption, setTaxOption] = useState([]);
+  const [taxRes, setTaxRes] = useState([]);
+  const [slabStatus, setSlabStatus] = useState(true);
+  const [slab, setSlab] = useState([
+    {
+      name: "MOQ slab 1",
+      minQuantity: 0,
+      maxQuantity: 0,
+      moqSalePrice: 0,
+    },
+  ]);
 
-
-
-
-
-
-
-  console.log("imageUrl", imageUrl);
+  console.log("All product drawer data=>", {
+    slab: slab,
+    minimumOrder: minimumOrder,
+  });
 
   // console.log(
   //   "defaultCategory",
@@ -93,7 +102,6 @@ const useProductSubmit = (id) => {
   const onSubmit = async (data) => {
     // console.log('data is data',data)
     try {
-      setIsSubmitting(true);
       if (!imageUrl) return notifyError("Image is required!");
 
       if (data.originalPrice < data.price) {
@@ -125,123 +133,177 @@ const useProductSubmit = (id) => {
       setSku(data.sku);
       setOriginalPrice(data.originalPrice);
 
-      const titleTranslates = await handlerTextTranslateHandler(
-        data.title,
-        language
-      );
-      const descriptionTranslates = await handlerTextTranslateHandler(
-        data.description,
-        language
-      );
+      // const titleTranslates = await handlerTextTranslateHandler(
+      //   data.title,
+      //   language
+      // );
+      // const descriptionTranslates = await handlerTextTranslateHandler(
+      //   data.description,
+      //   language
+      // );
+      const productImage = (arr) => {
+        let imageArr = [];
+        const img = arr?.map((item, i) => {
+          let newImg = {
+            medialink: item,
+            defaultOrNot: i === 0 ? true : false,
+          };
+          imageArr.push(newImg);
+        });
+        return imageArr;
+      };
+
+      console.log("taxRes=>>>", taxRes);
+      const AllTax = tax?.map((item) => item._id);
+      console.log("AllTax=>>>", AllTax);
 
       const productData = {
-        productId: productId,
-        sku: data.sku || "",
-        barcode: data.barcode || "",
-        title: {
-          [language]: data.title,
-          ...titleTranslates,
-        },
-        description: {
-          [language]: data.description ? data.description : "",
-          ...descriptionTranslates,
-        },
+        barcode: data?.barcode || "",
+        title: data.title,
+        description: data.description ? data.description : "",
         slug: data.slug
           ? data.slug
           : data.title.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"),
-
         categories: selectedCategory.map((item) => item._id),
         category: defaultCategory[0]._id,
-
-        image: imageUrl,
-        stock: variants?.length < 1 ? data.stock : Number(totalStock),
-        tag: JSON.stringify(tag),
-
-        prices: {
-          price: Number(data.price) || 0,
-          originalPrice: data.originalPrice || 0,
-          discount: Number(data.originalPrice) - Number(data.price),
+        image: productImage(imageUrl),
+        stock: variants?.length < 1 ? data.stock : totalStock,
+        tax: AllTax,
+        warrantyPeriods: {
+          duration: warrantyPeriod,
+          unit: "months",
         },
-        isCombination: updatedVariants?.length > 0 ? isCombination : false,
+        minimumOrderOfQuantity: minimumOrder,
+        moqSlab: slab,
+        sales: 100,
+        tag: tag,
+        prices: {
+          price: data.originalPrice || 0,
+          salePrice: data.price || 0,
+          discount: data.originalPrice - data.price,
+        },
         variants: isCombination ? updatedVariants : [],
+        isCombination: updatedVariants?.length > 0 ? isCombination : false,
+        status: "show",
+        userManual: productImage(userManual),
+        technicalSpecification: productImage(technical),
+        testCertification: productImage(test),
       };
 
-      // console.log("productData ===========>", productData, "data", data);
+      console.log("productData ===========>", productData, "data", data);
       // return setIsSubmitting(false);
+      let check = true;
+      for (let ele of slab) {
+        if (parseInt(ele.minQuantity, 10) > parseInt(minimumOrder, 10)) {
+          if (parseInt(ele.minQuantity, 10) > parseInt(ele.maxQuantity, 10)) {
+            setSlabStatus(false);
+            check = false;
+            setIsSubmitting(false);
 
-      if (updatedId) {
-        const res = await ProductServices.updateProduct(updatedId, productData);
-        if (res) {
+            notifyError(`in ${ele.name} ,min slab is less the MAx Slab`);
+          }
+        } else {
+          setSlabStatus(false);
+          check = false;
+          setIsSubmitting(false);
+
+          notifyError(
+            `in ${ele.name}, min slab is greater then minimum order quantity`
+          );
+        }
+      }
+      if (check === true) {
+        if (updatedId) {
+          const res = await ProductServices.updateProduct(
+            updatedId,
+            productData
+          );
+          if (res) {
+            if (isCombination) {
+              setIsUpdate(true);
+              notifySuccess(res.message);
+              setIsBasicComplete(true);
+              setIsSubmitting(false);
+              handleProductTap("Combination", true);
+            } else {
+              setIsUpdate(true);
+              notifySuccess(res.message);
+              setIsSubmitting(false);
+            }
+          }
+
+          if (
+            tapValue === "Combination" ||
+            (tapValue !== "Combination" && !isCombination)
+          ) {
+            closeDrawer();
+          }
+        } else {
+          const res = await ProductServices.addProduct(productData);
+          // console.log("res is ", res);
           if (isCombination) {
+            setUpdatedId(res._id);
+            setValue("title", res.title[language ? language : "en"]);
+            setValue(
+              "description",
+              res.description[language ? language : "en"]
+            );
+            setValue("slug", res.slug);
+            setValue("show", res.show);
+            setValue("barcode", res.barcode);
+            setValue("stock", res.stock);
+            setTag(JSON.parse(res.tag));
+            setImageUrl(res.image);
+            setVariants(res.variants);
+            setValue("productId", res.productId);
+            setProductId(res.productId);
+            setOriginalPrice(res?.prices?.originalPrice);
+            setPrice(res?.prices?.price);
+            setBarcode(res.barcode);
+            setSku(res.sku);
+            setValue("minimumOrder", "");
+            setValue("warrantyPeriod", "");
+            setSlab([
+              {
+                name: "MOQ slab 1",
+                minQuantity: 0,
+                maxQuantity: 0,
+                moqSalePrice: 0,
+              },
+            ]);
+
+            const result = res.variants.map(
+              ({
+                originalPrice,
+                price,
+                discount,
+                quantity,
+                barcode,
+                sku,
+                productId,
+                image,
+                ...rest
+              }) => rest
+            );
+
+            setVariant(result);
             setIsUpdate(true);
-            notifySuccess(res.message);
             setIsBasicComplete(true);
             setIsSubmitting(false);
             handleProductTap("Combination", true);
+            notifySuccess("Product Added Successfully!");
           } else {
             setIsUpdate(true);
-            notifySuccess(res.message);
-            setIsSubmitting(false);
+            notifySuccess("Product Added Successfully!");
           }
-        }
 
-        if (
-          tapValue === "Combination" ||
-          (tapValue !== "Combination" && !isCombination)
-        ) {
-          closeDrawer();
-        }
-      } else {
-        const res = await ProductServices.addProduct(productData);
-        // console.log("res is ", res);
-        if (isCombination) {
-          setUpdatedId(res._id);
-          setValue("title", res.title[language ? language : "en"]);
-          setValue("description", res.description[language ? language : "en"]);
-          setValue("slug", res.slug);
-          setValue("show", res.show);
-          setValue("barcode", res.barcode);
-          setValue("stock", res.stock);
-          setTag(JSON.parse(res.tag));
-          setImageUrl(res.image);
-          setVariants(res.variants);
-          setValue("productId", res.productId);
-          setProductId(res.productId);
-          setOriginalPrice(res?.prices?.originalPrice);
-          setPrice(res?.prices?.price);
-          setBarcode(res.barcode);
-          setSku(res.sku);
-          const result = res.variants.map(
-            ({
-              originalPrice,
-              price,
-              discount,
-              quantity,
-              barcode,
-              sku,
-              productId,
-              image,
-              ...rest
-            }) => rest
-          );
-
-          setVariant(result);
-          setIsUpdate(true);
-          setIsBasicComplete(true);
-          setIsSubmitting(false);
-          handleProductTap("Combination", true);
-          notifySuccess("Product Added Successfully!");
-        } else {
-          setIsUpdate(true);
-          notifySuccess("Product Added Successfully!");
-        }
-
-        if (
-          tapValue === "Combination" ||
-          (tapValue !== "Combination" && !isCombination)
-        ) {
-          setIsSubmitting(false);
-          closeDrawer();
+          if (
+            tapValue === "Combination" ||
+            (tapValue !== "Combination" && !isCombination)
+          ) {
+            setIsSubmitting(false);
+            closeDrawer();
+          }
         }
       }
     } catch (err) {
@@ -250,6 +312,7 @@ const useProductSubmit = (id) => {
       notifyError(err ? err?.response?.data?.message : err.message);
       closeDrawer();
     }
+    setIsSubmitting(false);
   };
 
   useEffect(() => {
@@ -316,23 +379,45 @@ const useProductSubmit = (id) => {
           // console.log("res", res);
 
           if (res) {
+            let response = res?.tax;
+            let allTax = [];
+            for (let ele of response) {
+              taxRes.map((item) => {
+                if (ele == item._id) {
+                  allTax.push(item);
+                }
+              });
+            }
+            let arr = allTax.map((item) => ({
+              amount: `${item.taxName} (${item.type === "flatin" ? "₹" : ""}${
+                item.ammount
+              } ${item.type === "percentage" ? "%" : ""})`,
+              _id: item._id,
+              taxName: item.taxName,
+              type: item.type,
+            }));
+            setTax(arr);
+
             setResData(res);
             setSlug(res.slug);
             setUpdatedId(res._id);
-            setValue("title", res.title[language ? language : "en"]);
-            setValue(
-              "description",
-              res.description[language ? language : "en"]
-            );
+            setValue("title", res.title);
+            setValue("description", res.description);
             setValue("slug", res.slug);
             setValue("show", res.show);
             setValue("sku", res.sku);
             setValue("barcode", res.barcode);
             setValue("stock", res.stock);
             setValue("productId", res.productId);
-            setValue("price", res?.prices?.price);
-            setValue("originalPrice", res?.prices?.originalPrice);
-            setValue("stock", res.stock);
+            setValue("price", res?.prices?.salePrice);
+            setValue("originalPrice", res?.prices?.price);
+            setValue("stock", res?.stock);
+            setMinimumOrder(res?.minimumOrderOfQuantity);
+            setValue("minimumOrder", res?.minimumOrderOfQuantity);
+            setWarrantyPeriod(res?.warrantyPeriods?.duration);
+            setValue("warrantyPeriod", res?.warrantyPeriods?.duration);
+            setTag(res?.tag);
+
             setProductId(res.productId ? res.productId : res._id);
             setBarcode(res.barcode);
             setSku(res.sku);
@@ -347,17 +432,26 @@ const useProductSubmit = (id) => {
               res?.category?.name,
               lang
             );
-
+            const allImg = (arr) => {
+              let img = arr.map((item) => item?.medialink);
+              return img;
+            };
             setSelectedCategory(res.categories);
             setDefaultCategory([res?.category]);
-            setTag(JSON.parse(res.tag));
-            setImageUrl(res.image);
+
+            setImageUrl(res?.image && allImg(res?.image));
+            setUserManual(res?.userManual && allImg(res?.userManual));
+            setTechnical(
+              res?.technicalSpecification && allImg(res?.technicalSpecification)
+            );
+            setTest(res?.testCertification && allImg(res?.testCertification));
             setVariants(res.variants);
             setIsCombination(res.isCombination);
             setQuantity(res?.stock);
             setTotalStock(res.stock);
             setOriginalPrice(res?.prices?.originalPrice);
             setPrice(res?.prices?.price);
+            setSlab(res.moqSlab);
           }
         } catch (err) {
           notifyError(err ? err?.response?.data?.message : err.message);
@@ -657,18 +751,136 @@ const useProductSubmit = (id) => {
     setValue("slug", value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
     setSlug(value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
   };
-  
+
   //for handle product minimum Order
-  const handleProductMinimumOrder =(value)=>{
+  const handleProductMinimumOrder = (value) => {
     setValue("minimumOrder", value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
     setMinimumOrder(value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
-  }
+  };
 
-    //for handle product "Warranty Period Year
-    const handleProductWarrantyPeriod =(value)=>{
-      setValue("warrantyPeriod", value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
-      setWarrantyPeriod(value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
+  //for handle product "Warranty Period Year
+  const handleProductWarrantyPeriod = (value) => {
+    setValue(
+      "warrantyPeriod",
+      value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-")
+    );
+    setWarrantyPeriod(value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
+  };
+  // for MOQ slab -----------------------------------
+  const handleAddSlab = (id) => {
+    let newArray = [...slab];
+    const newSlab = {
+      name: `MOQ slab ${id}`,
+      minQuantity: 0,
+      maxQuantity: 0,
+      moqSalePrice: 0,
+    };
+    setSlab([...newArray, newSlab]);
+  };
+
+  const isNumber = (input) => {
+    const numberPattern = /^\d+$/;
+    return numberPattern.test(input);
+  };
+  // for MOQ slab Price--------------------------
+  const handleDeleteSlab = (id) => {
+    let newArray = [...slab];
+    const slabFilter = newArray.filter((item) => item.name !== id);
+    setSlab(slabFilter);
+  };
+
+  // for MOQ slab price ---------------------------------
+  const handleInputField = (val, id) => {
+    let price = parseInt(val, 10);
+    if (isNumber(price)) {
+      let newArray = [...slab];
+      newArray.forEach((ele, i) => {
+        if (ele.name === id) {
+          ele.moqSalePrice = price;
+        }
+      });
+      setSlab(newArray);
     }
+  };
+  const handleMaxMOQ = (val, id) => {
+    let price = parseInt(val, 10);
+    let newArray = [...slab];
+    setSlabStatus(true);
+    if (isNumber(val)) {
+      newArray.forEach((ele, i) => {
+        if (ele.name === id) {
+          ele.maxQuantity = val;
+        }
+      });
+      setSlab(newArray);
+    } else {
+      if (val === "") {
+        newArray.forEach((ele, i) => {
+          if (ele.name === id) {
+            ele.maxQuantity = val;
+          }
+        });
+        setSlab(newArray);
+      }
+    }
+  };
+  const handleMinMOQ = (val, id) => {
+    let price = parseInt(val, 10);
+    let newArray = [...slab];
+    setSlabStatus(true);
+
+    if (isNumber(val)) {
+      newArray.forEach((ele, i) => {
+        if (ele.name === id) {
+          ele.minQuantity = val;
+        }
+      });
+      setSlab(newArray);
+    } else {
+      if (val === "") {
+        newArray.forEach((ele, i) => {
+          if (ele.name === id) {
+            ele.minQuantity = "";
+          }
+        });
+        setSlab(newArray);
+      }
+    }
+  };
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     for (let ele of slab) {
+  //       if (ele.minQuantity > minimumOrder) {
+  //         if (ele.minQuantity >= ele.maxQuantity) {
+  //           notifyError(`${ele.name} is less the MAx Slab`);
+  //         }
+  //       } else {
+  //         notifyError(`${ele.name} is greater then minimum order quantity`);
+  //       }
+  //     }
+  //   }, 2000);
+  // }, [slab]);
+  // for handle get tax option
+  const getTaxDetails = () => {
+    TaxService.getTax().then((res) => {
+      if (res?.success === true) {
+        setTaxRes(res?.taxDetails);
+        let response = res?.taxDetails;
+        let arr = response.map((item) => ({
+          amount: `${item.taxName} (${item.type === "flatin" ? "₹" : ""}${
+            item.ammount
+          } ${item.type === "percentage" ? "%" : ""})`,
+          _id: item._id,
+          taxName: item.taxName,
+          type: item.type,
+        }));
+        setTaxOption(arr);
+      }
+    });
+  };
+  useEffect(() => {
+    getTaxDetails();
+  }, []);
   return {
     tag,
     setTag,
@@ -704,12 +916,15 @@ const useProductSubmit = (id) => {
     setTechnical,
     test,
     setTest,
-    tex,
-    setTex,
+    tax,
+    setTax,
     minimumOrder,
     setMinimumOrder,
     warrantyPeriod,
     setWarrantyPeriod,
+    taxOption,
+    slab,
+    setSlab,
 
     handleProductMinimumOrder,
     handleSkuBarcode,
@@ -729,6 +944,11 @@ const useProductSubmit = (id) => {
     handleSelectInlineImage,
     handleGenerateCombination,
     handleProductWarrantyPeriod,
+    handleAddSlab,
+    handleInputField,
+    handleMaxMOQ,
+    handleMinMOQ,
+    handleDeleteSlab,
   };
 };
 

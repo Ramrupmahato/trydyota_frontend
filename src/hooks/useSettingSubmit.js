@@ -19,32 +19,48 @@ const useSettingSubmit = (id) => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    return notifyError("CRUD operation is disabled for this option!");
+    // return notifyError("CRUD operation is disabled for this option!");
     try {
       setIsSubmitting(true);
+      // const settingData = {
+      //   name: "globalSetting",
+      //   setting: {
+      //     number_of_image_per_product: data.number_of_image_per_product,
+      //     shop_name: data.shop_name,
+      //     address: data.address,
+      //     company_name: data.company_name,
+      //     vat_number: data.vat_number,
+      //     post_code: data.post_code,
+      //     contact: data.contact,
+      //     email: data.email,
+      //     website: data.website,
+      //     receipt_size: data.receipt_size,
+      //     default_currency: data.default_currency,
+      //     default_time_zone: data.default_time_zone,
+      //     default_date_format: data.default_date_format,
+      //   },
+      // };
       const settingData = {
-        name: "globalSetting",
-        setting: {
-          number_of_image_per_product: data.number_of_image_per_product,
-          shop_name: data.shop_name,
-          address: data.address,
-          company_name: data.company_name,
-          vat_number: data.vat_number,
-          post_code: data.post_code,
-          contact: data.contact,
-          email: data.email,
-          website: data.website,
-          receipt_size: data.receipt_size,
-          default_currency: data.default_currency,
-          default_time_zone: data.default_time_zone,
-          default_date_format: data.default_date_format,
-        },
+        // name: "globalSetting",
+        numberOfImagePerProduct: parseInt(data.number_of_image_per_product,10),
+        shop_name: data.shop_name,
+        address: data.address,
+        companyName: data.company_name,
+        vat_number: data.vat_number,
+        postCode: data.post_code,
+        contact: data.contact,
+        email: data.email,
+        website: data.website,
+        receiptSize: data.receipt_size,
+        defaultCurrency: data.default_currency,
+        defaultTimeZone: data.default_time_zone,
+        defaultDateFormat: data.default_date_format,
       };
 
       // console.log('global setting', globalSettingData);
       // return;
 
-      if (!isSave) {
+      if (isSave) {
         const res = await SettingServices.updateGlobalSetting(settingData);
         setIsUpdate(true);
         setIsSubmitting(false);

@@ -80,7 +80,8 @@ const CategoryTable = ({
                   to={`/categories/${category?._id}`}
                   className="text-blue-700"
                 >
-                  {showingTranslateValue(category?.name, lang)}
+                  {category?.name}
+                  {/* {showingTranslateValue(category?.name, lang)} */}
 
                   <>
                     {showChild && (
@@ -98,7 +99,8 @@ const CategoryTable = ({
                                     <IoRemoveSharp />
                                   </span>
                                   <span className="text-gray-500">
-                                    {showingTranslateValue(child.name, lang)}
+                                    {child.name}
+                                    {/* {showingTranslateValue(child.name, lang)} */}
                                   </span>
                                 </div>
                               </Link>
@@ -110,11 +112,12 @@ const CategoryTable = ({
                   </>
                 </Link>
               ) : (
-                <span>{showingTranslateValue(category?.name, lang)}</span>
+                <span>{category?.name}</span>
               )}
             </TableCell>
             <TableCell className="text-sm">
-              {showingTranslateValue(category?.description, lang)}
+              {category?.description}
+              {/* {showingTranslateValue(category?.description, lang)} */}
             </TableCell>
 
             <TableCell className="text-center">

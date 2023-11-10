@@ -18,12 +18,24 @@ import useToggleDrawer from "@/hooks/useToggleDrawer";
 import AttributeServices from "@/services/AttributeServices";
 import CurrencyServices from "@/services/CurrencyServices";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import TaxService from "@/services/TaxService";
+import shippingService from "@/services/ShippingService";
+import CatalogService from "@/services/CatalogService";
+import homeService from "@/services/HomeService";
 
-const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
+const DeleteModal = ({
+  id,
+  ids,
+  setIsCheck,
+  category,
+  title,
+  useParamId,
+  fetchData,
+}) => {
   const { isModalOpen, closeModal, setIsUpdate } = useContext(SidebarContext);
   const { setServiceId } = useToggleDrawer();
   const location = useLocation();
-
+  console.log("id=", id, "ids=", ids);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleDelete = async () => {
@@ -222,6 +234,93 @@ const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
           notifySuccess(res.message);
           setServiceId();
           closeModal();
+          setIsSubmitting(false);
+        }
+      }
+
+      if (location.pathname === "/tax") {
+        if (ids) {
+          const res = await TaxService.deleteTax({
+            ids: ids,
+          });
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setIsCheck([]);
+          closeModal();
+          setIsSubmitting(false);
+        } else {
+          const res = await TaxService.deleteTax({ id: id });
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setServiceId();
+          closeModal();
+          fetchData();
+          setIsSubmitting(false);
+        }
+      }
+      if (location.pathname === "/shipping") {
+        if (ids) {
+          const res = await TaxService.deleteTax({
+            ids: ids,
+          });
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setIsCheck([]);
+          closeModal();
+          setIsSubmitting(false);
+        } else {
+          const res = await shippingService.deleteShipping(id);
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setServiceId();
+          closeModal();
+          fetchData();
+          setIsSubmitting(false);
+        }
+      }
+      if (location.pathname === "/catalog") {
+        if (ids) {
+          console.log("catalogs1");
+
+          const res = await TaxService.deleteTax({
+            ids: ids,
+          });
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setIsCheck([]);
+          closeModal();
+          setIsSubmitting(false);
+        } else {
+          console.log("catalogs2");
+          const res = await CatalogService.deleteCatalog(id);
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setServiceId();
+          closeModal();
+          fetchData();
+          setIsSubmitting(false);
+        }
+      }
+      if (location.pathname === "/home") {
+        if (ids) {
+          console.log("catalogs1");
+
+          const res = await TaxService.deleteTax({
+            ids: ids,
+          });
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setIsCheck([]);
+          closeModal();
+          setIsSubmitting(false);
+        } else {
+          console.log("catalogs2");
+          const res = await homeService.deleteHome({ id: id });
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setServiceId();
+          closeModal();
+          fetchData();
           setIsSubmitting(false);
         }
       }

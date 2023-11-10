@@ -67,7 +67,7 @@ const Products = () => {
   );
 
   const { data: globalSetting } = useAsync(SettingServices.getGlobalSetting);
-  const currency = globalSetting?.default_currency || "$";
+  const currency = globalSetting?.default_currency || "₹";
   // console.log("product page", data);
 
   // react hooks
@@ -234,7 +234,11 @@ const Products = () => {
                 <TableCell>Sale Price</TableCell>
                 <TableCell>{t("StockTbl")}</TableCell>
                 <TableCell>{t("StatusTbl")}</TableCell>
-                <TableCell className="text-center">{t("DetailsTbl")}</TableCell>
+                <TableCell>minimum order</TableCell>
+                <TableCell>warranty</TableCell>
+
+
+                {/* <TableCell className="text-center">{t("DetailsTbl")}</TableCell> */}
                 <TableCell className="text-center">
                   {t("PublishedTbl")}
                 </TableCell>

@@ -6,9 +6,9 @@
   "scope": ".",
   "start_url": ".",
   "id": ".",
-  "short_name": "Kachabazar - Admin",
-  "name": "Kachabazar - React eCommerce Admin Dashboard",
-  "description": "React Grocery & Organic Food Store e-commerce Admin Dashboard",
+  "short_name": "TriDyota - Admin",
+  "name": "TriDyota | Admin Dashboard",
+  "description": "Electric Store e-commerce Admin Dashboard",
   "icons": [
     {
       "src": "/icon-192x192.png",

@@ -41,6 +41,8 @@ const Category = () => {
     CategoryServices.getAllCategories
   );
 
+  console.log('data',data);
+
   const { handleDeleteMany, allId, handleUpdateMany, serviceId } =
     useToggleDrawer();
 
@@ -61,6 +63,7 @@ const Category = () => {
     handleRemoveSelectFile,
   } = useFilter(data[0]?.children ? data[0]?.children : data);
 
+  console.log('serviceData==>',serviceData);
   // react hooks
   const [isCheckAll, setIsCheckAll] = useState(false);
   const [isCheck, setIsCheck] = useState([]);

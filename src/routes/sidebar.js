@@ -7,9 +7,13 @@ import {
   FiSlack,
   FiGlobe,
   FiTarget,
+  FiHome
 } from "react-icons/fi";
 
 import { PiMoneyLight } from "react-icons/pi";
+import { FaShippingFast } from "react-icons/fa";
+import { BiSolidBookReader } from "react-icons/bi";
+import { TbUserQuestion } from "react-icons/tb";
 
 /**
  * ⚠ These are used just to render the Sidebar!
@@ -47,11 +51,16 @@ const sidebar = [
       },
     ],
   },
-
   {
     path: "/customers",
     icon: FiUsers,
     name: "Customers",
+  },
+
+  {
+    path: "/home",
+    icon: FiHome,
+    name: "Home page",
   },
   {
     path: "/orders",
@@ -73,7 +82,22 @@ const sidebar = [
   {
     path: "/tax",
     icon: PiMoneyLight,
-    name: "TaxDetails",
+    name: "Tax Details",
+  },
+  {
+    path: "/shipping",
+    icon: FaShippingFast,
+    name: "Shipping",
+  },
+  {
+    path: "/catalog",
+    icon: BiSolidBookReader,
+    name: "Catalog",
+  },
+  {
+    path: "/enquiry",
+    icon: TbUserQuestion,
+    name: "Enquiry",
   },
   // {
   //   icon: FiGlobe,

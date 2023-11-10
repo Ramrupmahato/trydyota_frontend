@@ -25,7 +25,7 @@ const useCouponSubmit = (id) => {
   const globalSetting = settingItem.find(
     (value) => value.name === "globalSetting"
   );
-  const currency = globalSetting?.default_currency || "$";
+  const currency = globalSetting?.default_currency || "₹";
 
   const {
     register,
@@ -45,15 +45,12 @@ const useCouponSubmit = (id) => {
       );
 
       const couponData = {
-        title: {
-          [language]: data.title,
-          ...titleTranslates,
-        },
+        title: data.title,
         couponCode: data.couponCode,
         endTime: data.endTime,
         minimumAmount: data.minimumAmount,
         logo: imageUrl,
-        lang: language,
+        startTime: "",
         status: published ? "show" : "hide",
         discountType: {
           type: discountType ? "percentage" : "fixed",

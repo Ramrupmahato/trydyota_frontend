@@ -36,6 +36,9 @@ import UploaderThree from "@/components/image-uploader/UploaderThree";
 import AttributeOptionTwo from "@/components/attribute/AttributeOptionTwo";
 import AttributeListTable from "@/components/attribute/AttributeListTable";
 import SwitchToggleForCombination from "@/components/form/SwitchToggleForCombination";
+import MoqSlab from "../form/MoqSlab";
+import { MdOutlineDeleteOutline } from "react-icons/md";
+import { BsPlus } from "react-icons/bs";
 
 //internal import
 
@@ -83,12 +86,13 @@ const ProductDrawer = ({ id }) => {
     setTechnical,
     test,
     setTest,
-    tex,
-    setTex,
+    tax,
+    setTax,
     minimumOrder,
-    setMinimumOrder,
     warrantyPeriod,
-    setWarrantyPeriod,
+    taxOption,
+    slab,
+    setSlab,
 
     handleProductSlug,
     handleSelectLanguage,
@@ -102,13 +106,25 @@ const ProductDrawer = ({ id }) => {
     handleGenerateCombination,
     handleProductMinimumOrder,
     handleProductWarrantyPeriod,
+    handleAddSlab,
+    handleInputField,
+    handleMaxMOQ,
+    handleMinMOQ,
+    handleDeleteSlab,
   } = useProductSubmit(id);
 
-  const currency = globalSetting?.default_currency || "$";
+  const currency = globalSetting?.default_currency || "₹";
+
+  const state = {
+    options: [
+      { name: "Option 1️⃣", id: 1 },
+      { name: "Option 2️⃣", id: 2 },
+    ],
+  };
 
   return (
     <>
-      <Modal
+      {/* <Modal
         open={openModal}
         onClose={onCloseModal}
         center
@@ -125,7 +141,7 @@ const ProductDrawer = ({ id }) => {
             handleSelectImage={handleSelectImage}
           />
         </div>
-      </Modal>
+      </Modal> */}
 
       <div className="w-full relative p-6 border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
         {id ? (
@@ -245,7 +261,7 @@ const ProductDrawer = ({ id }) => {
                     setImageUrl={setTechnical}
                   />
                 </div>
-              </div>{" "}
+              </div>
               <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                 <LabelArea label={t("Test Certificate")} />
                 <div className="col-span-8 sm:col-span-4">
@@ -316,7 +332,7 @@ const ProductDrawer = ({ id }) => {
                 </div>
               </div>
               <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                <LabelArea label="Product Price" />
+                <LabelArea label="Product Price(per unit)" />
                 <div className="col-span-8 sm:col-span-4">
                   <InputValue
                     disabled={isCombination}
@@ -336,7 +352,7 @@ const ProductDrawer = ({ id }) => {
                 </div>
               </div>
               <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                <LabelArea label={t("SalePrice")} />
+                <LabelArea label={"Sale Price(per unit)"} />
                 <div className="col-span-8 sm:col-span-4">
                   <InputValue
                     disabled={isCombination}
@@ -354,6 +370,96 @@ const ProductDrawer = ({ id }) => {
                   <Error errorName={errors.price} />
                 </div>
               </div>
+              <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                <LabelArea label={t("Minimum order Quantity")} />
+                <div className="col-span-8 sm:col-span-4">
+                  <Input
+                    {...register(`minimumOrder`, {
+                      required: "minimum Order is required!",
+                    })}
+                    className="border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:bg-white"
+                    name="minimumOrder"
+                    type="text"
+                    defaultValue={minimumOrder}
+                    placeholder={t("Minimum order Quantity")}
+                    onBlur={(e) => handleProductMinimumOrder(e.target.value)}
+                  />
+                  <Error errorName={errors.minimumOrder} />
+                </div>
+              </div>
+              {slab &&
+                slab.map((item, i) => (
+                  <div
+                    key={i}
+                    className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6"
+                  >
+                    <LabelArea label={`MOQ slab ${i + 1}`} />
+                    <div className="col-span-8 sm:col-span-4 flex gap-1">
+                      <input
+                        className="border h-12 text-sm focus:outline-none block rounded-md w-[50px] p-1 dark:bg-gray-700 "
+                        name="minimumOrder"
+                        type="text"
+                        value={item.minQuantity}
+                        style={{ width: "100px" }}
+                        placeholder="min MOQ"
+                        onChange={(e) =>
+                          handleMinMOQ(e.target.value, `MOQ slab ${i + 1}`)
+                        }
+                      />
+                      <input
+                        className="border h-12 text-sm focus:outline-none block rounded-md w-[50px] p-1 bg-gray-200 dark:bg-gray-700"
+                        name="minimumOrder"
+                        style={{ width: "100px" }}
+                        type="text"
+                        value={item.maxQuantity}
+                        placeholder="max MOQ"
+                        onChange={(e) =>
+                          handleMaxMOQ(e.target.value, `MOQ slab ${i + 1}`)
+                        }
+                      />
+                      <InputValue
+                        disabled={isCombination}
+                        product
+                        style={{ width: "100px" }}
+                        register={register}
+                        minValue={0}
+                        defaultValue={item.moqSalePrice}
+                        required="false"
+                        label="Sale price"
+                        name={`moqSlabPrice${i + 1}`}
+                        type="number"
+                        placeholder="Sale price"
+                        currency={currency}
+                        handleInputField={handleInputField}
+                        id={`MOQ slab ${i + 1}`}
+                      />
+                      {slab && slab.length > 1 && (
+                        <button
+                          onClick={() => handleDeleteSlab(`MOQ slab ${i + 1}`)}
+                          className="bg-Warning w-35 flex gap-2 justify-items-center items-center p-2 rounded cursor-pointer"
+                          // className=" w-[100px] bg-red-600 hover:bg-red-50 hover:border-red-100 hover:text-red-600 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-red-700"
+                        >
+                          <span>
+                            <MdOutlineDeleteOutline />
+                          </span>{" "}
+                          Delete
+                        </button>
+                      )}
+                      {slab && slab.length === i + 1 && (
+                        <Button
+                          className="w-[70px] "
+                          onClick={() => handleAddSlab(i + 2)}
+                        >
+                          <span>
+                            <BsPlus />
+                          </span>
+                          Add more
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
               <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6 relative">
                 <LabelArea label={t("ProductQuantity")} />
                 <div className="col-span-8 sm:col-span-4">
@@ -397,39 +503,22 @@ const ProductDrawer = ({ id }) => {
                 </div>
               </div>
               <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                <LabelArea label={t("Tax (GST)")} />
+                <LabelArea label={t("Tax Name")} />
                 <div className="col-span-8 sm:col-span-4">
                   <Multiselect
-                    displayValue="name"
+                    displayValue="amount"
                     isObject={true}
-                    singleSelect={true}
+                    // singleSelect={true}
                     ref={resetRefTwo}
                     hidePlaceholder={true}
                     onKeyPressFn={function noRefCheck() {}}
                     onRemove={function noRefCheck() {}}
                     onSearch={function noRefCheck() {}}
-                    onSelect={(v) => setDefaultCategory(v)}
-                    selectedValues={defaultCategory}
-                    options={selectedCategory}
+                    onSelect={(v) => setTax(v)}
+                    selectedValues={tax}
+                    options={taxOption}
                     placeholder={"Default Category"}
                   ></Multiselect>
-                </div>
-              </div>
-              <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                <LabelArea label={t("Minimum order Quantity")} />
-                <div className="col-span-8 sm:col-span-4">
-                  <Input
-                    {...register(`minimumOrder`, {
-                      required: "minimum Order is required!",
-                    })}
-                    className="border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:bg-white"
-                    name="minimumOrder"
-                    type="text"
-                    defaultValue={minimumOrder}
-                    placeholder={t("Minimum order Quantity")}
-                    onBlur={(e) => handleProductMinimumOrder(e.target.value)}
-                  />
-                  <Error errorName={errors.minimumOrder} />
                 </div>
               </div>
               <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
@@ -483,17 +572,20 @@ const ProductDrawer = ({ id }) => {
             ) : (
               <div className="p-6">
                 {/* <h4 className="mb-4 font-semibold text-lg">Variants</h4> */}
-                <div className="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-3 md:gap-3 xl:gap-3 lg:gap-2 mb-3">
+                <div className="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-3 md:gap-3 xl:gap-3 lg:gap-2 mb-3 text-black ">
                   <MultiSelect
                     options={attTitle}
                     value={attributes}
                     onChange={(v) => handleAddAtt(v)}
                     labelledBy="Select"
+                    // className={
+                    //   " bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-primaryOn"
+                    // }
                   />
 
                   {attributes?.map((attribute, i) => (
                     <div key={attribute._id}>
-                      <div className="flex w-full h-10 justify-between font-sans rounded-tl rounded-tr bg-gray-200 px-4 py-3 text-left text-sm font-normal text-gray-700 hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+                      <div className="flex w-full h-10 justify-between font-sans rounded-tl rounded-tr bg-gray-200  px-4 py-3 text-left text-sm font-normal text-gray-700 hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
                         {"Select"}
                         {showingTranslateValue(attribute?.title, language)}
                       </div>
@@ -519,7 +611,6 @@ const ProductDrawer = ({ id }) => {
                       <span className="text-xs">{t("GenerateVariants")}</span>
                     </Button>
                   )}
-
                   {variantTitle.length > 0 && (
                     <Button onClick={handleClearVariant} className="mx-2">
                       <span className="text-xs">{t("ClearVariants")}</span>

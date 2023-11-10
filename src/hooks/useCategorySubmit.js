@@ -41,21 +41,23 @@ const useCategorySubmit = (id, data) => {
       );
 
       const categoryData = {
-        name: {
-          [language]: name,
-          ...nameTranslates,
-        },
-        description: {
-          [language]: description ? description : "",
-          ...descriptionTranslates,
-        },
+        // name: {
+        //   [language]: name,
+        //   ...nameTranslates,
+        // },
+        name: name,
+        description: description,
+        // description: {
+        //   [language]: description ? description : "",
+        //   ...descriptionTranslates,
+        // },
         parentId: checked ? checked : undefined,
         parentName: selectCategoryName ? selectCategoryName : "Home",
         // parentName: selectCategoryName ? selectCategoryName : 'Home',
 
         icon: imageUrl,
         status: published ? "show" : "hide",
-        lang: language,
+        // lang: language,
       };
 
       // console.log('category submit', categoryData);
@@ -120,17 +122,14 @@ const useCategorySubmit = (id, data) => {
 
           if (res) {
             setResData(res);
-            setValue("name", res.name[language ? language : "en"]);
-            setValue(
-              "description",
-              res.description[language ? language : "en"]
-            );
+            setValue("name", res.name);
+            setValue("description", res.description);
             setValue("language", language);
             setValue("parentId", res.parentId);
             setValue("parentName", res.parentName);
             setSelectCategoryName(res.parentName);
             setChecked(res.parentId);
-            setImageUrl(res.icon);
+            setImageUrl([res.icon]);
             setPublished(res.status === "show" ? true : false);
           }
         } catch (err) {
